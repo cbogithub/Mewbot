@@ -1,0 +1,34 @@
+.idea
+app/config/config.json
+
+# compiled output
+web/dist
+web/tmp
+
+# dependencies
+web/node_modules
+web/bower_components
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+
+# misc
+web/.sass-cache
+web/connect.lock
+web/coverage/*
+web/libpeerconnection.log
+web/npm-debug.log
+web/testem.log
+web/typings
+
+# e2e
+web/e2e/*.js
+web/e2e/*.map
+
+#System Files
+.DS_Store
+Thumbs.db

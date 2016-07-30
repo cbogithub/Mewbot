@@ -1,0 +1,8 @@
+<div>
+  <button (click)="submit()">Valider</button>
+  <button (click)="reset()">Reset</button>
+</div>
+
+<sebm-google-map (mapClick)="mapClicked($event)" [latitude]="config.lat" [longitude]="config.lng">
+  <sebm-google-map-marker *ngFor="let m of markers; let i = index" [latitude]="m.lat" [longitude]="m.lng"></sebm-google-map-marker>
+</sebm-google-map>
