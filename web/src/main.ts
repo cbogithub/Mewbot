@@ -5,6 +5,8 @@ import { AppComponent, environment } from './app/';
 import {GOOGLE_MAPS_PROVIDERS} from 'angular2-google-maps/core';
 import {HTTP_PROVIDERS} from '@angular/http';
 
+import 'rxjs/add/operator/map'
+
 if (environment.production) {
   enableProdMode();
 }

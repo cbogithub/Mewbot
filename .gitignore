@@ -4,6 +4,7 @@ app/config/config.json
 # compiled output
 web/dist
 web/tmp
+web/cmd.exe.lnk
 
 # dependencies
 web/node_modules

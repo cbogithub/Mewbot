@@ -1,5 +1,12 @@
 {
-  "username": "My",
-  "lat": 51.678418,
-  "lng": 7.809007
+  "username": "user",
+  "lat": 54.44,
+  "lng": 2.77,
+  "zoom": 6,
+  "socket": {
+    "url": "http://localhost",
+    "port": 5000,
+    "reconnection": false,
+    "reconnectionAttempts": 2
+  }
 }

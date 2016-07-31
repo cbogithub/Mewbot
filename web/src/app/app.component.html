@@ -1,8 +1,52 @@
-<div>
-  <button (click)="submit()">Valider</button>
-  <button (click)="reset()">Reset</button>
+<div class="well">
+  <code>Server status: </code> <i class="fa fa-signal" aria-hidden="true" [ngStyle]="{'color': getColor()}"></i> <br>
+  <code>Erreur : {{ socket_service.error }}</code>
+
+  <hr>
+
+  <code>Config :</code> <br>
+  <code>{{ toJson(config) }}</code>
+
+  <hr>
+
+  <code>Waypoints :</code>
+  <code>{{ toJson(map_service.markers) }}</code>
 </div>
 
-<sebm-google-map (mapClick)="mapClicked($event)" [latitude]="config.lat" [longitude]="config.lng">
-  <sebm-google-map-marker *ngFor="let m of markers; let i = index" [latitude]="m.lat" [longitude]="m.lng"></sebm-google-map-marker>
+<div class="row">
+  <div class="col-md-12">
+    <button (click)="run()" class="btn btn-success">Run</button>
+    <button (click)="map_service.resetMarkers();" class="btn btn-danger">Reset</button>
+  </div>
+</div>
+
+<sebm-google-map *ngIf="config"
+(mapClick)="map_service.addMarker($event)"
+[latitude]="normalize(config.lat)"
+[longitude]="normalize(config.lng)"
+(centerChange)="updateCoords($event)"
+[zoom]="config.zoom">
+    <sebm-google-map-marker *ngFor="let m of map_service.markers;let i = index;"
+    (markerClick)="map_service.removeMarker(i)"
+    [latitude]="m?.lat"
+    [longitude]="m?.lng"
+    [iconUrl]="m?.iconUrl"></sebm-google-map-marker>
 </sebm-google-map>
+
+<error-modal>
+  <mcontent *ngIf="config">
+    <form class="form">
+      <div *ngFor="let k of config | keys" class="form-group">
+        <label [attr.for]="k.key">{{ k.key }}</label>
+        <input *ngIf="!isObject(k.value)" class="form-control" type="text" [id]="k.key" [value]="config[k.key]" (input)="config[k.key] = $event.target.value">
+
+        <div *ngIf="isObject(k.value)" class="form-group">
+          <div *ngFor="let entry of config[k.key] | keys" class="form-group">
+            <label [attr.for]="entry.key">{{ entry.key }}</label>
+            <input class="form-control" type="text" [value]="config[k.key][entry.key]" (input)="config[k.key][entry.key] = $event.target.value">
+          </div>
+        </div>
+      </div>
+    </form>
+  </mcontent>
+</error-modal>

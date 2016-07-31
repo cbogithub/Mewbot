@@ -1,0 +1,21 @@
+<modal *ngIf="_config" [title]='"Error"' [showClose]='false' (onClose)="close()" #errorModal>
+    {{ bindModal(errorModal) }}
+
+    <div *ngIf="!_config.text">
+      Your configuration file is incomplete, some default values will overide the problem.
+      Are you ok with these changes ?
+    </div>
+
+    <p *ngIf="_config.text">
+      {{ _config.text }}
+    </p>
+
+    <div *ngIf="_config.content">
+      <hr>
+      <ng-content select="mcontent"></ng-content>
+    </div>
+
+    <mfoot *ngIf="_config.button">
+      <button class='btn btn-{{ _config.button.type }}' (click)="close()">{{ _config.button.text }}</button>
+    </mfoot>
+</modal>

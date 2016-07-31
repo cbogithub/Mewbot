@@ -17,7 +17,9 @@ module.exports = function(defaults) {
       'rxjs/**/*.+(js|js.map)',
       '@angular/**/*.+(js|js.map)',
       'angular2-google-maps/**/*.+(js|js.map)',
-      'socket.io-client/socket.io.js'
+      'socket.io-client/socket.io.js',
+      'ng2-bootstrap/**/*',
+      'moment/*'
     ]
   });
 };

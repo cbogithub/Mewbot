@@ -1,73 +1,89 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { GOOGLE_MAPS_DIRECTIVES, MouseEvent } from 'angular2-google-maps/core';
-import { Http, Response } from '@angular/http';
-import { Observable } from "rxjs/Observable";
-import * as io from 'socket.io-client'
+import { Modal } from './components/modal.component';
+
+import {ErrorModal} from './components/modals/error/error.component';
+
+import { Config } from './interfaces/config';
+
+import { ConfigService } from './services/config.service';
+import { SocketService } from './services/socket.service';
+import { ModalService } from './services/modal.service';
+import { MapService } from './services/map.service';
+
+import {KeysPipe} from './pipes/keys.pipe';
 
 @Component({
   moduleId: module.id,
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.css'],
-  directives: [GOOGLE_MAPS_DIRECTIVES]
+  directives: [GOOGLE_MAPS_DIRECTIVES, ErrorModal],
+  providers: [ConfigService, SocketService, ModalService, MapService],
+  pipes: [KeysPipe]
 })
 
 export class AppComponent {
-  config = {
-    username: null,
-    lat: 0,
-    lng: 7.809007
-  }
+  @Input()
+  config:  Config;
+  SOCKET = null;
 
-  markers = []
-
-  SOCKET     = null;
-  SOCKET_URL = "http://localhost:5000";
-
-  constructor(private http: Http) {
-    this._setup_config();
-    this._setup_socket();
-  }
-
-  _setup_config() {
-    this.http.get('./config/config.json').subscribe((res) => {
-        this.config = res.json();
-        this._ready();
+  constructor(private config_service: ConfigService,
+    private socket_service: SocketService,
+    private modal_service: ModalService,
+    private map_service: MapService) {
+    let self = this;
+    this.config_service.getConfig().subscribe(config => {
+      self._ready(config)
     });
   }
 
-  _setup_socket() {
-    this.SOCKET = io(this.SOCKET_URL);
+  private _ready(config) {
+    this.config = <Config>config;
+    this.SOCKET = this.socket_service.createSocket(this.config.socket);
 
-    this.SOCKET.on("test", (msg) => {
-      console.log(msg);
-    });
+    if(this.config_service.getErrors()) {
+      let config = {action: 1, text: false, content: true, button: {type: "success", text: "Start"}};
+      this.modal_service.call("error", config);
+    }
   }
 
-  _ready() {
-    //alert("Choose endpoint(s)");
-  }
+  run() {
+    if(!this.map_service.markers.length) {
+      let config = {action: 1, text: "Please add waypoints before starting !", content: false, button: {type: "danger", text: "Close"}};
+      this.modal_service.call("error", config);
 
-  mapClicked($event: MouseEvent) {
-    this.markers.push({
-      lat: $event.coords.lat,
-      lng: $event.coords.lng
-    });
-  }
-
-  submit() {
-    var lgt = this.markers.length;
-
-    if(lgt < 1) {
-      alert("Please enter endpoints");
       return;
     }
 
-
+    var json = JSON.stringify(this.map_service.markers);
+    this.SOCKET.emit("submit", json)
   }
 
-  reset() {
-    this.SOCKET.emit("message", "hello");
-    this.markers = [];
+  isObject(val) {
+    return typeof val == "object";
+  }
+
+  normalize(e) {
+    return parseFloat(e);
+  }
+
+  getColor() {
+    if(this.socket_service.status == 0) {
+      return "red";
+    } else if (this.socket_service.status == 1) {
+      return "green";
+    } else {
+      return "orange";
+    }
+  }
+
+  toJson(obj) {
+    return JSON.stringify(obj, null, '\t');
+  }
+
+  updateCoords(e) {
+    this.config.lat = e.lat;
+    this.config.lng = e.lng;
   }
 }

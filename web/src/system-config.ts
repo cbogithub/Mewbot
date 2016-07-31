@@ -10,7 +10,9 @@
 /** Map relative paths to URLs. */
 const map: any = {
   'angular2-google-maps': 'vendor/angular2-google-maps',
-  'socket.io-client': 'vendor/socket.io-client'
+  'socket.io-client': 'vendor/socket.io-client',
+  'ng2-bootstrap': 'vendor/ng2-bootstrap',
+  'moment': 'vendor/moment/moment.js'
 };
 
 /** User packages configuration. */
@@ -22,6 +24,10 @@ const packages: any = {
   'socket.io-client': {
     defaultExtension: 'js',
     main: 'socket.io.js'
+  },
+  'ng2-bootstrap': {
+    defaultExtension: 'js',
+    main: 'ng2-bootstrap.js'
   }
 };
 
