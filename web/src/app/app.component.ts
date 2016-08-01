@@ -77,7 +77,7 @@ export class AppComponent {
   }
 
   getColor(): string {
-    let colors = ["red", "green", "orange"];
+    let colors = ["red", "lawngreen", "lightsalmon"];
 
     return colors[this.socket_service.status];
   }

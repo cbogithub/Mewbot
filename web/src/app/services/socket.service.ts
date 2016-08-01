@@ -14,6 +14,8 @@ export class SocketService {
   private _callback: any;
   private _observer: any;
 
+  private _onMessageBag: any = [];
+
   status:number = 1;
   error:string  = null;
 
@@ -40,12 +42,7 @@ export class SocketService {
   }
 
   on(id, callback): void {
-    this.socket.onmessage = (e) => {
-      let data = JSON.parse(e.data);
-      if(data.$type.indexOf(id) > -1) {
-        return callback(data);
-      }
-    }
+    this._onMessageBag.push({id: id, callback: callback});
   }
 
   emit(data): void {
@@ -139,13 +136,37 @@ export class SocketService {
       });
     }
 
-    this._handler[method]();
+    this._handler[method](this);
   }
 
   private _eventListener(): void {
+    let _this = this;
+
     //DEBUG
     this.socket.onopen = (data) => {
-      console.log("CONNECTED TO : " + this._getUrl());
+      console.log("CONNECTED TO : " + _this._getUrl());
     };
+
+    this.socket.onmessage = (e) => {
+      _this._onMessage(e);
+    };
+  }
+
+  private _onMessage(e) {
+    let data = JSON.parse(e.data),
+        lgt = this._onMessageBag.length;
+
+    for(var i = 0; i < lgt; i++) {
+      let id = this._onMessageBag[i].id;
+
+      if(id == false) {
+        this._onMessageBag[i].callback(data);
+        continue;
+      }
+
+      if(data.$type.indexOf(id) > -1) {
+        this._onMessageBag[i].callback(data);
+      }
+    }
   }
 }
