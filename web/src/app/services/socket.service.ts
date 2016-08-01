@@ -5,19 +5,19 @@ import { SocketConfig } from './../interfaces/socket-config';
 
 @Injectable()
 export class SocketService {
-  private config: SocketConfig;
-  private attempts:number = 0;
-  private socket;
   private INIT_FUNC: string = "init";
+  private config: SocketConfig;
+  private attempts: number = 0;
+  private socket: any;
 
   private _handler: any = false;
-  private _callback;
-  private _observer;
+  private _callback: any;
+  private _observer: any;
 
   status:number = 1;
-  error         = null;
+  error:string  = null;
 
-  createSocket(config) {
+  createSocket(config): Observable<SocketService> {
     let _this = this;
     this.config = config;
 
@@ -39,7 +39,7 @@ export class SocketService {
     };
   }
 
-  on(id, callback) {
+  on(id, callback): void {
     this.socket.onmessage = (e) => {
       let data = JSON.parse(e.data);
       if(data.$type.indexOf(id) > -1) {
@@ -48,21 +48,28 @@ export class SocketService {
     }
   }
 
-  emit(data) {
+  emit(data): void {
     this.socket.send(data);
   }
 
-  private _byHandler() {
+  private _byHandler(): void {
     var _this = this;
 
     this._initHandler((socketHandler) => {
       _this._handler = socketHandler;
-      _this.config   = _this._handler.getConfig(_this.config);
+      _this._buildConfig();
       _this._createSocket();
     });
   }
 
-  private _createSocket() {
+  private _buildConfig(): void {
+    let config = this._handler.getConfig();
+    for(let k in config) {
+      this.config[k] = config[k];
+    }
+  }
+
+  private _createSocket(): void {
     let url = this._getUrl();
 
     this.socket = new WebSocket(url);
@@ -78,7 +85,7 @@ export class SocketService {
     return this.config.url + ":" + this.config.port;
   }
 
-  private _checkConnection() {
+  private _checkConnection(): void {
     var _this = this;
 
     this.socket.onerror = (err) => {
@@ -91,12 +98,12 @@ export class SocketService {
     };
   }
 
-  private _handleError(err) {
+  private _handleError(err): void {
     this.status = 0;
     this.error  = err;
   }
 
-  private _initHandler(callback) {
+  private _initHandler(callback): void {
     let _this   = this,
         handler = this.config.handler,
         path    = "./app/handlers/socket/" + handler + "/" + handler + ".handler";
@@ -118,7 +125,7 @@ export class SocketService {
     });
   }
 
-  private _callHandler(method) {
+  private _callHandler(method): void {
     if(this.config.handler == false) {
       return;
     }
@@ -135,7 +142,7 @@ export class SocketService {
     this._handler[method]();
   }
 
-  private _eventListener() {
+  private _eventListener(): void {
     //DEBUG
     this.socket.onopen = (data) => {
       console.log("CONNECTED TO : " + this._getUrl());

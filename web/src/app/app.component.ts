@@ -1,9 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { GOOGLE_MAPS_DIRECTIVES, MouseEvent } from 'angular2-google-maps/core';
 
-import {ErrorModal} from './components/modals/error/error.component';
-
 import { Config } from './interfaces/config';
+import {ErrorModal} from './components/modals/error/error.component';
 
 import { ConfigService } from './services/config.service';
 import { SocketService } from './services/socket.service';
@@ -37,7 +36,7 @@ export class AppComponent {
     });
   }
 
-  private _ready(config) {
+  private _ready(config): void {
     let _this = this;
     this.config = <Config>config;
     this.socket_service.createSocket(this.config.socket).subscribe((s) => {_this._initSocket(s) }, (e) => { _this._handleError(e) });
@@ -48,16 +47,16 @@ export class AppComponent {
     }
   }
 
-  private _initSocket(socket) {
+  private _initSocket(socket): void {
     this.SOCKET = socket;
   }
 
-  private _handleError(err) {
+  private _handleError(err): void {
     let config = this.modal_service.buildConfig({text: err, content: false});
     this.modal_service.call("error", config);
   }
 
-  run() {
+  run(): void {
     if(!this.map_service.markers.length) {
       let config = {action: 1, text: "Please add waypoints before starting !", content: false, button: {type: "danger", text: "Close"}};
       this.modal_service.call("error", config);
@@ -69,29 +68,25 @@ export class AppComponent {
     this.SOCKET.emit("submit", json)
   }
 
-  isObject(val) {
+  isObject(val): boolean {
     return typeof val == "object";
   }
 
-  normalize(e) {
-    return parseFloat(e);
+  normalize(i): number {
+    return parseFloat(i);
   }
 
-  getColor() {
-    if(this.socket_service.status == 0) {
-      return "red";
-    } else if (this.socket_service.status == 1) {
-      return "green";
-    } else {
-      return "orange";
-    }
+  getColor(): string {
+    let colors = ["red", "green", "orange"];
+
+    return colors[this.socket_service.status];
   }
 
-  toJson(obj) {
-    return JSON.stringify(obj, null, '\t');
+  toJson(obj): string {
+    return JSON.stringify(obj);
   }
 
-  updateCoords(e) {
+  updateCoords(e): void {
     this.config.lat = e.lat;
     this.config.lng = e.lng;
   }

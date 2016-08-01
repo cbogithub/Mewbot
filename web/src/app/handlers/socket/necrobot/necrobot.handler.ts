@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 
+import { SocketHandler } from './../../../interfaces/socket.handler';
+import { SocketHandlerConfig } from './../../../interfaces/socket-handler-config';
+
 @Injectable()
-export class NecrobotHandler {
-  private config = {
+export class NecrobotHandler implements SocketHandler {
+  private config: SocketHandlerConfig = {
     port: 14251,
     url: "wss://127.0.0.1"
   }
@@ -10,20 +13,16 @@ export class NecrobotHandler {
 
   constructor() {}
 
-  init(socket) {
+  init(socket): void {
     this.socket = socket;
     this._eventListener();
   }
 
-  getConfig(config) {
-    for(let k in this.config) {
-      config[k] = this.config[k];
-    }
-
-    return config;
+  getConfig(): SocketHandlerConfig {
+    return this.config;
   }
 
-  private _eventListener() {
+  private _eventListener(): void {
     this.socket.on("PokeStopList", this._pokeStopList);
   }
 
