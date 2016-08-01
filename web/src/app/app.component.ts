@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { GOOGLE_MAPS_DIRECTIVES, MouseEvent } from 'angular2-google-maps/core';
-import { Modal } from './components/modal.component';
 
 import {ErrorModal} from './components/modals/error/error.component';
 
@@ -32,20 +31,30 @@ export class AppComponent {
     private socket_service: SocketService,
     private modal_service: ModalService,
     private map_service: MapService) {
-    let self = this;
+    let _this = this;
     this.config_service.getConfig().subscribe(config => {
-      self._ready(config)
+      _this._ready(config)
     });
   }
 
   private _ready(config) {
+    let _this = this;
     this.config = <Config>config;
-    this.SOCKET = this.socket_service.createSocket(this.config.socket);
+    this.socket_service.createSocket(this.config.socket).subscribe((s) => {_this._initSocket(s) }, (e) => { _this._handleError(e) });
 
     if(this.config_service.getErrors()) {
       let config = {action: 1, text: false, content: true, button: {type: "success", text: "Start"}};
       this.modal_service.call("error", config);
     }
+  }
+
+  private _initSocket(socket) {
+    this.SOCKET = socket;
+  }
+
+  private _handleError(err) {
+    let config = this.modal_service.buildConfig({text: err, content: false});
+    this.modal_service.call("error", config);
   }
 
   run() {

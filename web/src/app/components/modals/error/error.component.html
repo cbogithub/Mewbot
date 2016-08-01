@@ -1,4 +1,4 @@
-<modal *ngIf="_config" [title]='"Error"' [showClose]='false' (onClose)="close()" #errorModal>
+<modal *ngIf="_config" [title]='"Error"' [class]='"danger"' [showClose]='false' (onClose)="close()" #errorModal>
     {{ bindModal(errorModal) }}
 
     <div *ngIf="!_config.text">

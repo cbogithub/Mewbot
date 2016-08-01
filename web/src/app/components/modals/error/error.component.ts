@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Modal } from './../../modal.component';
+import { Modal } from './../modal.component';
 import { ModalService } from './../../../services/modal.service';
 
 @Component({
@@ -18,7 +18,6 @@ export class ErrorModal {
 
     modal_service.callError$.subscribe((config) => {
       self._config = config;
-
       if(config.action == 1) {
         return self.open();
       }

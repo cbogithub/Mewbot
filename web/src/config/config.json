@@ -4,9 +4,11 @@
   "lng": 2.77,
   "zoom": 6,
   "socket": {
+    "priority": "handler",
+    "handler": "necrobot",
     "url": "http://localhost",
     "port": 5000,
-    "reconnection": false,
-    "reconnectionAttempts": 2
+    "reconnection": true,
+    "reconnectionAttempts": "2"
   }
 }

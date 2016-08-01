@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
+
 import {Observable} from 'rxjs/Observable';
 
 import { SocketConfig } from './../interfaces/socket-config';
+import * as io from 'socket.io-client'
 
 @Injectable()
-export class SocketService {
+export class SocketIoService {
   private config: SocketConfig;
   private attempts:number = 0;
   private socket;
-  private INIT_FUNC: string = "init";
 
   private _handler: any = false;
   private _callback;
   private _observer;
-
   status:number = 1;
   error         = null;
 
@@ -32,24 +32,8 @@ export class SocketService {
     });
   }
 
-  createData(id, data) {
-    let arr = {
-      id: id,
-      data: data
-    };
-  }
-
-  on(id, callback) {
-    this.socket.onmessage = (e) => {
-      let data = JSON.parse(e.data);
-      if(data.$type.indexOf(id) > -1) {
-        return callback(data);
-      }
-    }
-  }
-
-  emit(data) {
-    this.socket.send(data);
+  add(id, callback) {
+    this.socket.on(id, callback);
   }
 
   private _byHandler() {
@@ -65,12 +49,24 @@ export class SocketService {
   private _createSocket() {
     let url = this._getUrl();
 
-    this.socket = new WebSocket(url);
+    this.socket = io.connect(url, {reconnection: this.config.reconnection, reconnectionAttempts: this.config.reconnectionAttempts});
     this._checkConnection();
-    this._callHandler(this.INIT_FUNC);
-    this._eventListener();
+    this._callHandler("init");
 
-    this._observer.next(this);
+    //DEBUG
+    this.socket.on('onopen', (data) => {
+      console.log(data);
+      console.log("eee");
+    });
+
+    //let websocket = new WebSocket("wss://127.0.0.1:14251");
+    //websocket.onopen = function(evt) { console.log(evt); };
+
+    this.socket.on('message', (d) => {
+      console.log(d);
+    })
+
+    this._observer.next(this.socket);
     this._observer.complete();
   }
 
@@ -81,19 +77,14 @@ export class SocketService {
   private _checkConnection() {
     var _this = this;
 
-    this.socket.onerror = (err) => {
+    this.socket.on('connect_error', (err) => {
       if(!_this.config.reconnection || _this.attempts >= _this.config.reconnectionAttempts) {
         return _this._handleError(err);
       }
 
       _this.status = 2;
       _this.attempts++;
-    };
-  }
-
-  private _handleError(err) {
-    this.status = 0;
-    this.error  = err;
+    });
   }
 
   private _initHandler(callback) {
@@ -135,10 +126,8 @@ export class SocketService {
     this._handler[method]();
   }
 
-  private _eventListener() {
-    //DEBUG
-    this.socket.onopen = (data) => {
-      console.log("CONNECTED TO : " + this._getUrl());
-    };
+  private _handleError(err) {
+    this.status = 0;
+    this.error  = err;
   }
 }

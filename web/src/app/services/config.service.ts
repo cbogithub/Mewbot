@@ -13,6 +13,8 @@ export class ConfigService {
     lng: 0,
     zoom: 7,
     socket: {
+      priority: "config",
+      handler: false,
       url: "http://localhost",
       port: 5000,
       reconnection: false,
