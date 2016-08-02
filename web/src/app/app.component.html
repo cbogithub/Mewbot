@@ -1,19 +1,14 @@
 <div class="well">
   <code>Server status: </code> <i class="fa fa-signal" aria-hidden="true" [ngStyle]="{'color': getColor()}"></i> <br>
-  <code>Erreur : {{ socket_service.error }}</code>
+  <code>Erreur: {{ socket_service.error }}</code>
 
   <hr>
 
-  <code>Config :</code> <br>
+  <code>Config: </code> <br>
   <code>{{ toJson(config) }}</code>
-
-  <hr>
-
-  <code>Waypoints :</code>
-  <code>{{ toJson(map_service.markers) }}</code>
 </div>
 
-<div class="row">
+<div class="row form-group">
   <div class="col-md-12">
     <button (click)="run()" class="btn btn-success">Run</button>
     <button (click)="map_service.resetMarkers();" class="btn btn-danger">Reset</button>
@@ -21,17 +16,24 @@
 </div>
 
 <sebm-google-map *ngIf="config"
-(mapClick)="map_service.addMarker($event)"
-[latitude]="normalize(config.lat)"
-[longitude]="normalize(config.lng)"
+(mapClick)="map_service.addMarker('waypoints', $event)"
+[latitude]="normalize(map_service.lat)"
+[longitude]="normalize(map_service.lng)"
 (centerChange)="updateCoords($event)"
 [zoom]="config.zoom">
-    <sebm-google-map-marker *ngFor="let m of map_service.markers;let i = index;"
-    (markerClick)="map_service.removeMarker(i)"
-    [latitude]="m?.lat"
-    [longitude]="m?.lng"
-    [iconUrl]="m?.iconUrl"></sebm-google-map-marker>
+    <span *ngFor="let k of map_service.getMarkersKeys()">
+      <sebm-google-map-marker *ngFor="let m of map_service.markers[k]; let i = index;"
+      (markerClick)="map_service.removeMarker(k, i, 'iterable')"
+      [latitude]="m?.lat"
+      [longitude]="m?.lng"
+      [iconUrl]="m?.iconUrl"></sebm-google-map-marker>
+    </span>
 </sebm-google-map>
+
+<div class="well">
+  <code>Waypoints :</code>
+  <code>{{ toJson(map_service.markers) }}</code>
+</div>
 
 <error-modal>
   <mcontent *ngIf="config">

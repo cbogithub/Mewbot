@@ -2,7 +2,7 @@
   "username": "user",
   "lat": 54.44,
   "lng": 2.77,
-  "zoom": 6,
+  "zoom": 15,
   "socket": {
     "priority": "handler",
     "handler": "necrobot",

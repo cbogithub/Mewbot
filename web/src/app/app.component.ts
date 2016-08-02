@@ -39,6 +39,7 @@ export class AppComponent {
   private _ready(config): void {
     let _this = this;
     this.config = <Config>config;
+    this.map_service.setCenter(config.lat, config.lng);
     this.socket_service.createSocket(this.config.socket).subscribe((s) => {_this._initSocket(s) }, (e) => { _this._handleError(e) });
 
     if(this.config_service.getErrors()) {
@@ -57,7 +58,7 @@ export class AppComponent {
   }
 
   run(): void {
-    if(!this.map_service.markers.length) {
+    if(!this.map_service.markers['waypoints'].length) {
       let config = {action: 1, text: "Please add waypoints before starting !", content: false, button: {type: "danger", text: "Close"}};
       this.modal_service.call("error", config);
 
@@ -72,12 +73,12 @@ export class AppComponent {
     return typeof val == "object";
   }
 
-  normalize(i): number {
+  normalize(i, t): number {
     return parseFloat(i);
   }
 
   getColor(): string {
-    let colors = ["red", "lawngreen", "lightsalmon"];
+    let colors = ["red", "lawngreen", "lightsalmon", "black"];
 
     return colors[this.socket_service.status];
   }

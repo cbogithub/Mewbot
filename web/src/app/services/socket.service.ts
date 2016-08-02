@@ -3,9 +3,10 @@ import {Observable} from 'rxjs/Observable';
 
 import { SocketConfig } from './../interfaces/socket-config';
 
+import { MapService } from './map.service';
+
 @Injectable()
 export class SocketService {
-  private INIT_FUNC: string = "init";
   private config: SocketConfig;
   private attempts: number = 0;
   private socket: any;
@@ -18,6 +19,8 @@ export class SocketService {
 
   status:number = 1;
   error:string  = null;
+
+  constructor(private map_service: MapService) {}
 
   createSocket(config): Observable<SocketService> {
     let _this = this;
@@ -71,14 +74,13 @@ export class SocketService {
 
     this.socket = new WebSocket(url);
     this._checkConnection();
-    this._callHandler(this.INIT_FUNC);
     this._eventListener();
 
     this._observer.next(this);
     this._observer.complete();
   }
 
-  private _getUrl() {
+  private _getUrl(): string {
     return this.config.url + ":" + this.config.port;
   }
 
@@ -90,14 +92,16 @@ export class SocketService {
         return _this._handleError(err);
       }
 
+      console.log(_this.status);
       _this.status = 2;
       _this.attempts++;
+      _this._createSocket();
     };
   }
 
   private _handleError(err): void {
     this.status = 0;
-    this.error  = err;
+    this.error  = "An error occured, connexion seems down";
   }
 
   private _initHandler(callback): void {
@@ -116,7 +120,7 @@ export class SocketService {
       }
 
       let handlerClass = keys[0],
-          handler = new ref[handlerClass]();
+          handler = new ref[handlerClass](_this, _this.map_service);
 
       callback(handler);
     });
@@ -147,12 +151,18 @@ export class SocketService {
       console.log("CONNECTED TO : " + _this._getUrl());
     };
 
+    this.socket.onclose = () => {
+      if(_this.status != 0 && _this.attempts > _this.config.reconnectionAttempts) {
+          _this.status = 4;
+      }
+    }
+
     this.socket.onmessage = (e) => {
       _this._onMessage(e);
     };
   }
 
-  private _onMessage(e) {
+  private _onMessage(e): void {
     let data = JSON.parse(e.data),
         lgt = this._onMessageBag.length;
 
