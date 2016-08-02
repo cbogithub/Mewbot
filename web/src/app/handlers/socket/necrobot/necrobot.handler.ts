@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {Inject} from '@angular/core';
 
 import { SocketHandler } from './../../../interfaces/socket.handler';
 import { SocketHandlerConfig } from './../../../interfaces/socket-handler-config';
